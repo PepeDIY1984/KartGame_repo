@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Rodamiento : MonoBehaviour
+public class Rodamiento_old : MonoBehaviour
 
 
 {
@@ -9,16 +9,6 @@ public class Rodamiento : MonoBehaviour
     public float wheelRadius = 0.5f; // Radio de la rueda en metros
     public Vector3 rotationAxis = Vector3.right; // Eje de rotaci�n de la rueda
     
-
-    void Start()
-    {
-        if (playerRb == null)
-        {
-            Debug.LogError("El padre debe tener un Rigidbody para calcular la velocidad.");
-            enabled = false;
-        }
-    }
-
     void Update()
     {
         if (playerRb == null) return;
