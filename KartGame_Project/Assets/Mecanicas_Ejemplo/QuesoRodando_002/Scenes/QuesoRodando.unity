@@ -1664,7 +1664,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveForce: 20
-  turnTorque: 0.5
+  turnTorque: 0.3
   maxSpeed: 10
 --- !u!114 &711936133
 MonoBehaviour:
