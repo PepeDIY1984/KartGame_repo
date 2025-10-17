@@ -466,8 +466,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 711936130}
   offset: {x: 0, y: 3, z: -7}
-  followSpeed: 6
-  rotationSmooth: 10
+  positionSharpness: 12
+  rotationSharpness: 10
+  lookAheadDistance: 4
+  lookPointSmoothTime: 0.06
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
