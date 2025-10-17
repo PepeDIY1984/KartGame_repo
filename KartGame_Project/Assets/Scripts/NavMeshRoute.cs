@@ -1,57 +1,69 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
+[RequireComponent(typeof(NavMeshAgent))]
 public class NavMeshRoute : MonoBehaviour
 {
-    public Transform[] checkpoints;        // Lista de checkpoints en orden
-    public float switchDistance = 3f;      // Distancia para cambiar al siguiente checkpoint
-    public float stoppingDistanceBuffer = 0.5f; // Extra para evitar frenadas en seco
+    [Header("Ruta")]
+    public Transform[] checkpoints;
+    public float switchDistance = 2.5f;     // distancia para cambiar al siguiente
+    public float stoppingDistanceBuffer = 0.5f;
 
     private NavMeshAgent agent;
     private int currentIndex = 0;
+    private bool routeCompleted = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
 
-        // Ajustes recomendados para suavizar
-        agent.autoBraking = false;   // No frenar en cada destino, mantiene velocidad
-        agent.updateRotation = true; // Deja que el agente gire suavemente
-        agent.acceleration = 20f;    // Aceleración más alta para arrancar suave
-        agent.angularSpeed = 400f;   // Giro más fluido
+        // Configuración recomendada para movimiento suave
+        agent.autoBraking = false;
+        agent.updateRotation = true;
+        agent.acceleration = 25f;
+        agent.angularSpeed = 300f;
         agent.stoppingDistance = stoppingDistanceBuffer;
 
-        if (checkpoints.Length > 0)
+        if (checkpoints != null && checkpoints.Length > 0)
         {
-            agent.SetDestination(checkpoints[currentIndex].position);
+            SetNextDestination();
         }
     }
 
     void Update()
     {
-        if (checkpoints.Length == 0 || currentIndex >= checkpoints.Length) return;
+        if (routeCompleted || checkpoints == null || checkpoints.Length == 0)
+            return;
 
-        // Distancia al checkpoint actual
-        float distance = Vector3.Distance(transform.position, checkpoints[currentIndex].position);
-
-        // Cambiar al siguiente antes de llegar al centro
-        if (distance < switchDistance)
+        // Solo comprobar cuando el path esté calculado
+        if (!agent.pathPending)
         {
-            currentIndex++;
-
-            if (currentIndex < checkpoints.Length)
+            // remainingDistance es más preciso que Vector3.Distance
+            if (agent.remainingDistance <= switchDistance)
             {
-                agent.SetDestination(checkpoints[currentIndex].position);
-            }
-            else
-            {
-                Debug.Log("Ruta completada 🏁");
-                agent.isStopped = true;
+                currentIndex++;
+                if (currentIndex < checkpoints.Length)
+                {
+                    SetNextDestination();
+                }
+                else
+                {
+                    agent.isStopped = true;
+                    routeCompleted = true;
+                    Debug.Log("Ruta completada 🏁");
+                }
             }
         }
     }
 
-    // Dibujar líneas en el editor
+    private void SetNextDestination()
+    {
+        if (currentIndex < checkpoints.Length && checkpoints[currentIndex] != null)
+        {
+            agent.SetDestination(checkpoints[currentIndex].position);
+        }
+    }
+
     void OnDrawGizmos()
     {
         if (checkpoints == null || checkpoints.Length == 0) return;
@@ -59,10 +71,8 @@ public class NavMeshRoute : MonoBehaviour
         Gizmos.color = Color.yellow;
         for (int i = 0; i < checkpoints.Length - 1; i++)
         {
-            if (checkpoints[i] != null && checkpoints[i + 1] != null)
-            {
+            if (checkpoints[i] && checkpoints[i + 1])
                 Gizmos.DrawLine(checkpoints[i].position, checkpoints[i + 1].position);
-            }
         }
     }
 }
